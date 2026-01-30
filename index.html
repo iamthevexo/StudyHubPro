@@ -533,5 +533,38 @@
             a.download = `StudyHub_${Date.now()}.json`; a.click();
         }
     </script>
+
+<script>
+(function () {
+  const originalCreateObjectURL = URL.createObjectURL;
+
+  URL.createObjectURL = function (blob) {
+    try {
+      // Only hijack JSON exports from Study Hub
+      if (!blob || !blob.type || !blob.type.includes("application/json")) {
+        return originalCreateObjectURL(blob);
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        const base64 = reader.result.split(",")[1];
+
+        // Match exportData() filename logic
+        const filename = "StudyHub_" + Date.now() + ".json";
+
+        if (window.Android && Android.saveFile) {
+          Android.saveFile(base64, filename);
+        }
+      };
+
+      reader.readAsDataURL(blob);
+    } catch (e) {}
+
+    return originalCreateObjectURL(blob);
+  };
+})();
+</script>
+
+    
 </body>
 </html>

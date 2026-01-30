@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Hub Ultra | Zelvior</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --surface: #0a0a0a;
+            --text: #ffffff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --accent: #ffffff;
+            --success: #10b981;
+            --error: #ef4444;
+            --blur: blur(20px);
+            --transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 850px; margin: 0 auto; padding: 2rem 1.2rem 10rem 1.2rem; }
+
+        header { padding: 2rem 0 3rem; text-align: center; }
+        h1 { font-size: 2.2rem; font-weight: 200; letter-spacing: 0.5rem; text-transform: uppercase; }
+        .sub-header { font-size: 0.65rem; opacity: 0.4; letter-spacing: 3px; margin-top: 10px; font-weight: 800; }
+
+        .glass-card {
+            background: var(--surface);
+            backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 1.8rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .badge {
+            background: var(--text);
+            color: var(--bg);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.6rem;
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 1rem;
+            z-index: 1000;
+        }
+
+        .tab-btn {
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            padding: 1rem 0.5rem;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0px rgba(255,255,255,0.05);
+        }
+
+        .tab-btn:hover { border-color: rgba(255,255,255,0.4); transform: translateY(-2px); }
+        .tab-btn:active { transform: translateY(1px); }
+        .tab-btn.active {
+            background: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .timer-box { text-align: center; }
+        .timer-display { font-size: 2.8rem; font-family: monospace; font-weight: 900; margin: 0.5rem 0; }
+
+        textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: var(--text);
+            padding: 1.2rem;
+            font-size: 1rem;
+            outline: none;
+            resize: none;
+            min-height: 250px;
+            margin-bottom: 1rem;
+        }
+
+        .btn-main {
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            padding: 1.4rem;
+            border-radius: 16px;
+            width: 100%;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.25rem;
+            transition: var(--transition);
+            box-shadow: 0 6px 0px #444;
+        }
+
+        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0px #222; }
+
+        .tab-content { display: none; opacity: 0; transform: translateY(10px); }
+        .tab-content.active { display: block; opacity: 1; transform: translateY(0); transition: all 0.4s ease; }
+
+        /* ADVANCED QUIZ UI */
+        .quiz-container { max-width: 600px; margin: 0 auto; text-align: center; }
+        .quiz-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--glass);
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .quiz-progress-fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .option-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: var(--text);
+            text-align: left;
+            margin-top: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+        .option-btn:hover { border-color: white; background: rgba(255,255,255,0.08); }
+        .option-btn.correct { background: var(--success); border-color: var(--success); }
+        .option-btn.wrong { background: var(--error); border-color: var(--error); }
+
+        .quiz-results { text-align: center; animation: fadeIn 0.5s ease; }
+        .result-score { font-size: 4rem; font-weight: 900; margin: 1rem 0; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .flashcard {
+            background: linear-gradient(145deg, #111, #050505);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            min-height: 200px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .stat-card { padding: 1.5rem; background: var(--glass); border-radius: 20px; text-align: center; }
+        .stat-val { font-size: 1.8rem; font-weight: 800; display: block; }
+        .stat-lab { font-size: 0.6rem; text-transform: uppercase; opacity: 0.4; letter-spacing: 1px; }
+
+        .footer-zelvior {
+            margin-top: 6rem;
+            padding: 4rem 1rem;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+        .social-tray { display: flex; justify-content: center; gap: 2rem; margin: 2rem 0; }
+        .social-link {
+            color: var(--text); opacity: 0.4; transition: var(--transition);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            text-decoration: none; font-size: 0.6rem; font-weight: bold;
+        }
+        .social-link:hover { opacity: 1; transform: translateY(-4px); }
+        .social-link svg { width: 28px; height: 28px; fill: currentColor; }
+
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: white;
+            color: black;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            z-index: 10000;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 650px) {
+            .nav-grid { grid-template-columns: repeat(2, 1fr); position: relative; top: 0; }
+            .dashboard-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast">Copied</div>
+
+    <div class="container">
+        <header>
+            <h1>Study Hub Pro</h1>
+            <div class="sub-header">ZELVIOR ARCHITECTURE v4.0</div>
+        </header>
+
+        <div class="dashboard-row">
+            <div class="glass-card timer-box" style="margin:0;">
+                <span class="badge">Deep Work Timer</span>
+                <div class="timer-display" id="timerDisplay">25:00</div>
+                <div style="display:flex; gap:10px; justify-content:center;">
+                    <button class="tab-btn" style="min-width: 100px;" onclick="handleTimer()" id="timerCtrl">Start</button>
+                    <button class="tab-btn" style="min-width: 100px;" onclick="resetTimer()">Reset</button>
+                </div>
+            </div>
+            <div class="glass-card" style="margin:0; text-align:center; display:flex; flex-direction:column; justify-content:center;">
+                <span class="badge">Focus Audio</span>
+                <button class="tab-btn" id="musicBtn" style="width:100%;" onclick="handleMusic()">Play Lo-Fi</button>
+                <audio id="audioPlayer" loop src="https://stream.zeno.fm/0r0xa792kwzuv"></audio>
+            </div>
+        </div>
+
+        <nav class="nav-grid">
+            <button class="tab-btn active" onclick="nav('input', this)">Input</button>
+            <button class="tab-btn" onclick="nav('summary', this)">Summary</button>
+            <button class="tab-btn" onclick="nav('cards', this)">Cards</button>
+            <button class="tab-btn" onclick="nav('quiz', this)">Quiz</button>
+            <button class="tab-btn" onclick="nav('planner', this)">Plan</button>
+            <button class="tab-btn" onclick="nav('dump', this)">Dump</button>
+            <button class="tab-btn" onclick="nav('stats', this)">Stats</button>
+            <button class="tab-btn" onclick="exportData()">Export</button>
+        </nav>
+
+        <section id="input" class="tab-content active">
+            <div class="glass-card">
+                <span class="badge">Knowledge Processor</span>
+                <textarea id="mainInput" placeholder="Paste your massive textbooks or messy lecture notes here..."></textarea>
+                <button class="btn-main" onclick="triggerAI()">Synthesize Study Pack</button>
+            </div>
+        </section>
+
+        <section id="summary" class="tab-content">
+            <div class="glass-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <h3>The High-Level Concept</h3>
+                    <button class="tab-btn" style="padding: 10px 20px;" onclick="copySummary()">Copy Pack</button>
+                </div>
+                <div id="summaryView">No data synthesized yet.</div>
+            </div>
+        </section>
+
+        <section id="cards" class="tab-content">
+            <div id="cardsView" style="display:grid; gap:1rem;"></div>
+        </section>
+
+        <section id="quiz" class="tab-content">
+            <div class="quiz-container" id="quizContainer">
+                <div class="glass-card">
+                    <p style="opacity:0.5;">Input notes to start the examination.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="planner" class="tab-content">
+            <div class="glass-card">
+                <span class="badge">Tasks</span>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="text" id="taskName" placeholder="Task name..." style="flex:1; background:var(--glass); border:1px solid var(--glass-border); border-radius:12px; padding:12px; color:white; outline:none;">
+                    <button class="tab-btn" onclick="addPlanTask()">Add</button>
+                </div>
+                <div id="plannerView"></div>
+            </div>
+        </section>
+
+        <section id="dump" class="tab-content">
+            <div class="glass-card">
+                <span class="badge">Brain Dump</span>
+                <textarea id="dumpArea" placeholder="Start dumping your memory here..." style="min-height: 400px;"></textarea>
+            </div>
+        </section>
+
+        <section id="stats" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card"><span class="stat-val" id="statWords">0</span><span class="stat-lab">Words</span></div>
+                <div class="stat-card"><span class="stat-val" id="statFocus">0m</span><span class="stat-lab">Focus</span></div>
+                <div class="stat-card"><span class="stat-val" id="statMastery">0%</span><span class="stat-lab">Mastery</span></div>
+                <div class="stat-card"><span class="stat-val" id="statCards">0</span><span class="stat-lab">Cards</span></div>
+            </div>
+        </section>
+
+        <footer class="footer-zelvior">
+            <div class="social-tray">
+                <a href="https://youtube.com/@thevexo.zelvior" class="social-link" target="_blank"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>YouTube</a>
+                <a href="mailto:Zelvior@proton.me" class="social-link"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Email</a>
+            </div>
+            <div style="font-size: 0.5rem; opacity: 0.2; letter-spacing: 5px;">EST. 2026 ZELVIOR</div>
+        </footer>
+    </div>
+
+    <script>
+        let state = {
+            summary: "",
+            cards: [],
+            quiz: [],
+            quizIndex: 0,
+            quizActive: false,
+            quizScore: 0,
+            planner: [],
+            stats: { words: 0, focus: 0, attempts: 0, score: 0 },
+            timeLeft: 1500,
+            timerRunning: false
+        };
+
+        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
+
+        function nav(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function triggerAI() {
+            const raw = document.getElementById('mainInput').value.trim();
+            if(raw.length < 50) return alert("Needs more text.");
+            
+            state.stats.words = raw.split(/\s+/).length;
+            const concepts = raw.split(/[.!?]\s+/).filter(s => s.trim().length > 30);
+            
+            state.summary = concepts.slice(0, 8).map((s, i) => `### POINT ${i+1}\n${s.trim()}.\n`).join('\n');
+            state.cards = concepts.map(c => ({ q: "Explain the following:", a: c.trim() + ".", flipped: false }));
+            
+            // Generate Real Quiz
+            state.quiz = concepts.slice(0, 8).map((c, i) => {
+                const distractors = concepts.filter(x => x !== c).sort(() => 0.5 - Math.random()).slice(0, 3);
+                return {
+                    question: `What best describes concept #${i+1}?`,
+                    answer: c.trim() + ".",
+                    options: shuffle([c.trim() + ".", ...distractors.map(d => d.trim() + ".")]),
+                    answered: false
+                };
+            });
+            
+            state.quizIndex = 0;
+            state.quizScore = 0;
+            state.quizActive = true;
+            
+            updateUI();
+            nav('summary', document.querySelectorAll('.tab-btn')[1]);
+        }
+
+        function shuffle(a) { return a.sort(() => 0.5 - Math.random()); }
+
+        function updateUI() {
+            document.getElementById('summaryView').innerHTML = state.summary ? state.summary.replace(/\n/g, '<br>') : "No data.";
+            
+            const cardsView = document.getElementById('cardsView');
+            cardsView.innerHTML = state.cards.map((c, i) => `
+                <div class="flashcard" onclick="flipCard(${i})"><p>${c.flipped ? c.a : c.q}</p></div>
+            `).join('');
+
+            renderQuiz();
+            renderPlanner();
+            document.getElementById('statWords').innerText = state.stats.words;
+            document.getElementById('statCards').innerText = state.cards.length;
+            document.getElementById('statMastery').innerText = state.stats.attempts > 0 ? Math.round((state.stats.score/state.stats.attempts)*100)+'%' : '0%';
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            if(!state.quizActive || state.quiz.length === 0) return;
+
+            if(state.quizIndex >= state.quiz.length) {
+                const percent = Math.round((state.quizScore / state.quiz.length) * 100);
+                let rank = percent > 80 ? "SCHOLAR" : percent > 50 ? "APPRENTICE" : "NOVICE";
+                container.innerHTML = `
+                    <div class="quiz-results glass-card">
+                        <span class="badge">Final Result</span>
+                        <div class="result-score">${percent}%</div>
+                        <p style="letter-spacing:4px; opacity:0.6;">RANK: ${rank}</p>
+                        <p style="margin:1rem 0; font-size:0.9rem;">You scored ${state.quizScore} out of ${state.quiz.length}</p>
+                        <button class="btn-main" onclick="restartQuiz()">Restart Examination</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const q = state.quiz[state.quizIndex];
+            const progress = ((state.quizIndex) / state.quiz.length) * 100;
+
+            container.innerHTML = `
+                <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${progress}%"></div></div>
+                <div class="glass-card" style="text-align:left;">
+                    <span class="badge">Question ${state.quizIndex + 1} of ${state.quiz.length}</span>
+                    <h3 style="margin-bottom:1.5rem;">${q.question}</h3>
+                    <div id="quizOptions">
+                        ${q.options.map(opt => `<button class="option-btn" onclick="handleQuizSelection(this, '${opt.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleQuizSelection(btn, choice) {
+            const q = state.quiz[state.quizIndex];
+            if(q.answered) return;
+            q.answered = true;
+            state.stats.attempts++;
+
+            const allBtns = document.querySelectorAll('.option-btn');
+            if(choice === q.answer) {
+                btn.classList.add('correct');
+                state.quizScore++;
+                state.stats.score++;
+                showToast("Correct!");
+            } else {
+                btn.classList.add('wrong');
+                allBtns.forEach(b => { if(b.innerText === q.answer) b.classList.add('correct'); });
+                showToast("Incorrect");
+            }
+
+            setTimeout(() => {
+                state.quizIndex++;
+                renderQuiz();
+            }, 1500);
+        }
+
+        function restartQuiz() {
+            state.quizIndex = 0;
+            state.quizScore = 0;
+            state.quiz.forEach(q => q.answered = false);
+            renderQuiz();
+        }
+
+        function flipCard(i) { state.cards[i].flipped = !state.cards[i].flipped; updateUI(); }
+        
+        function addPlanTask() {
+            const v = document.getElementById('taskName').value.trim();
+            if(!v) return;
+            state.planner.push({ id: Date.now(), name: v, done: false });
+            document.getElementById('taskName').value = "";
+            renderPlanner();
+        }
+
+        function renderPlanner() {
+            const c = document.getElementById('plannerView');
+            c.innerHTML = state.planner.map(p => `
+                <div class="plan-item" onclick="togglePlan(${p.id})">
+                    <span style="${p.done ? 'text-decoration:line-through; opacity:0.3;' : ''}">${p.name}</span>
+                    <span>${p.done ? '✓' : '○'}</span>
+                </div>
+            `).join('');
+        }
+
+        function togglePlan(id) {
+            const i = state.planner.findIndex(p => p.id === id);
+            state.planner[i].done = !state.planner[i].done;
+            renderPlanner();
+        }
+
+        let timerId;
+        function handleTimer() {
+            const b = document.getElementById('timerCtrl');
+            if(state.timerRunning) { clearInterval(timerId); b.innerText = "Start"; }
+            else {
+                timerId = setInterval(() => {
+                    state.timeLeft--;
+                    const m = Math.floor(state.timeLeft/60), s = state.timeLeft%60;
+                    document.getElementById('timerDisplay').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                    if(state.timeLeft <= 0) { clearInterval(timerId); state.stats.focus += 25; resetTimer(); }
+                }, 1000);
+                b.innerText = "Pause";
+            }
+            state.timerRunning = !state.timerRunning;
+        }
+
+        function resetTimer() { clearInterval(timerId); state.timerRunning = false; state.timeLeft = 1500; document.getElementById('timerDisplay').innerText = "25:00"; document.getElementById('timerCtrl').innerText = "Start"; }
+
+        function handleMusic() {
+            const p = document.getElementById('audioPlayer'), b = document.getElementById('musicBtn');
+            if(p.paused) { p.play(); b.innerText = "Pause"; b.style.background = "white"; b.style.color = "black"; }
+            else { p.pause(); b.innerText = "Play Lo-Fi"; b.style.background = "var(--surface)"; b.style.color = "white"; }
+        }
+
+        function copySummary() {
+            const t = document.createElement("textarea");
+            t.value = state.summary; t.style.position = "fixed"; t.style.left = "-9999px";
+            document.body.appendChild(t); t.select(); document.execCommand('copy');
+            document.body.removeChild(t); showToast("Copied to Clipboard");
+        }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(state)], {type: 'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `StudyHub_${Date.now()}.json`; a.click();
+        }
+    </script>
+</body>
+</html>
